@@ -132,6 +132,7 @@ public class RecursoControllerTest {
         recurso1.setAutores(Arrays.asList(autor1));
         recurso1.setCategorias(Arrays.asList(categoria1));
         recurso1.setEtiquetas(Arrays.asList(etiqueta1));
+        recurso1.setArchivoKey("user1/123456-test.pdf");
 
         recurso2 = new Recurso();
         recurso2.setId("2");
@@ -149,6 +150,7 @@ public class RecursoControllerTest {
         recurso2.setAutores(Arrays.asList(autor2));
         recurso2.setCategorias(Arrays.asList(categoria2));
         recurso2.setEtiquetas(Arrays.asList(etiqueta2));
+        recurso2.setArchivoKey("user1/123457-test2.pdf");
     }
 
     @Test
@@ -222,6 +224,7 @@ public class RecursoControllerTest {
         inputRecurso.setAutoresIds(Arrays.asList("autor1"));
         inputRecurso.setCategoriasIds(Arrays.asList("cat1"));
         inputRecurso.setEtiquetasIds(Arrays.asList("etq1"));
+        inputRecurso.setArchivoKey("user1/123456-test.pdf");
 
         when(recursoRepository.save(any(Recurso.class))).thenAnswer(invocation -> {
             Recurso recursoGuardado = invocation.getArgument(0);
@@ -271,6 +274,7 @@ public class RecursoControllerTest {
         updateData.setAutoresIds(Arrays.asList("autor2"));
         updateData.setCategoriasIds(Arrays.asList("cat2"));
         updateData.setEtiquetasIds(Arrays.asList("etq2"));
+        updateData.setArchivoKey("user1/nuevo-archivo.pdf");
 
         when(recursoRepository.findById("1")).thenReturn(Optional.of(recurso1));
         when(recursoRepository.save(any(Recurso.class))).thenReturn(recurso1);
@@ -518,6 +522,39 @@ public class RecursoControllerTest {
 
         assertNotNull(result);
         assertEquals("Nuevo libro con usuario", result.getTitulo());
+        verify(recursoRepository, times(1)).save(any(Recurso.class));
+    }
+    
+    @Test
+    void update_ShouldUpdateArchivoKey_WhenIdExists() {
+        UpdateRecursoDTO updateData = new UpdateRecursoDTO();
+        updateData.setArchivoKey("user1/nuevo-archivo-actualizado.pdf");
+
+        when(recursoRepository.findById("1")).thenReturn(Optional.of(recurso1));
+        when(recursoRepository.save(any(Recurso.class))).thenReturn(recurso1);
+
+        ResponseEntity<Recurso> response = recursoController.update("1", updateData);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(recursoRepository, times(1)).save(any(Recurso.class));
+    }
+
+    @Test
+    void create_ShouldSaveArchivoKey_WhenProvided() {
+        CreateRecursoDTO inputRecurso = new CreateRecursoDTO();
+        inputRecurso.setTitulo("Libro con archivo");
+        inputRecurso.setArchivoKey("user1/123456-test.pdf");
+
+        when(recursoRepository.save(any(Recurso.class))).thenAnswer(invocation -> {
+            Recurso recursoGuardado = invocation.getArgument(0);
+            recursoGuardado.setId("3");
+            return recursoGuardado;
+        });
+
+        Recurso result = recursoController.create(inputRecurso);
+
+        assertNotNull(result);
+        assertEquals("user1/123456-test.pdf", result.getArchivoKey());
         verify(recursoRepository, times(1)).save(any(Recurso.class));
     }
     
