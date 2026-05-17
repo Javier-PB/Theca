@@ -42,6 +42,11 @@ jobs:
 
       # Compilar y ejecutar tests:
       - name: Build with Maven
+        env:
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+          AWS_SESSION_TOKEN: dummy
+          AWS_S3_BUCKET_NAME: dummy-bucket
         run: mvn clean package
 
       # Construir la imagen Docker:
