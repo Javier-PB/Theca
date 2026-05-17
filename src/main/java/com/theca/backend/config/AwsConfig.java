@@ -18,22 +18,21 @@ import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class AwsConfig {
-    
-    @Value("${aws.access-key-id:}")
-    private String accessKeyId;
-    
-    @Value("${aws.secret-access-key:}")
-    private String secretAccessKey;
-    
-    @PostConstruct
-    public void init() {
-        if (accessKeyId != null && !accessKeyId.isEmpty() 
-            && secretAccessKey != null && !secretAccessKey.isEmpty()) {
-            GestorClientesServiciosAWS.initCredentials(accessKeyId, secretAccessKey);
-            System.out.println("AWS credentials initialized");
-        } else {
-            System.out.println("AWS credentials not configured. S3 features will not work in local.");
-        }
-    }
-    
+ 
+ @Value("${aws.profile:default}")
+ private String awsProfile;
+ 
+ @Value("${aws.s3.bucket-name}")
+ private String bucketName;
+ 
+ @PostConstruct
+ public void init() {
+     if (System.getenv("CI") != null && System.getenv("CI").equals("true")) {
+         System.out.println("Running in CI mode, skipping AWS initialization");
+         return;
+     }
+     GestorClientesServiciosAWS.initProfile(awsProfile);
+     System.out.println("AWS profile configured: " + awsProfile);
+ }
+ 
 }
