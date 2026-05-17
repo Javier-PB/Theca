@@ -81,18 +81,25 @@ public class S3Controller {
     })
     public ResponseEntity<S3DownloadUrlDTO> getDownloadUrl(@PathVariable String key, HttpServletRequest request) {
         
+        String decodedKey = key;
+        try {
+            decodedKey = java.net.URLDecoder.decode(key, "UTF-8");
+        } catch (Exception e) {
+            decodedKey = key;
+        }
+        
         String userId = getUserIdFromToken(request);
         if (userId == null) {
             return ResponseEntity.badRequest().body(null);
         }
         
-        if (!key.startsWith(userId + "/")) {
+        if (!decodedKey.startsWith(userId + "/")) {
             return ResponseEntity.status(403).build();
         }
         
-        String downloadUrl = gestorObjetosS3.obtenerURLGetDocumentoEnS3(key);
+        String downloadUrl = gestorObjetosS3.obtenerURLGetDocumentoEnS3(decodedKey);
         
-        return ResponseEntity.ok(new S3DownloadUrlDTO(downloadUrl, key));
+        return ResponseEntity.ok(new S3DownloadUrlDTO(downloadUrl, decodedKey));
     }
     
     // Método auxiliar para extraer el token del header:

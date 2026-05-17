@@ -13,6 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,7 +107,7 @@ class S3ControllerTest {
     }
 
     @Test
-    void getDownloadUrl_ShouldReturnDownloadUrl_WhenValidRequest() {
+    void getDownloadUrl_ShouldReturnDownloadUrl_WhenValidRequestWithUnencodedKey() {
         String key = mockUserId + "/123-test-key.pdf";
         
         when(jwtUtils.validateJwtToken(mockToken)).thenReturn(true);
@@ -119,6 +122,43 @@ class S3ControllerTest {
         assertEquals(key, response.getBody().getKey());
         
         verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(key);
+    }
+
+    @Test
+    void getDownloadUrl_ShouldReturnDownloadUrl_WhenValidRequestWithEncodedKey() throws Exception {
+        String originalKey = mockUserId + "/123-test-key.pdf";
+        String encodedKey = URLEncoder.encode(originalKey, StandardCharsets.UTF_8.toString());
+        
+        when(jwtUtils.validateJwtToken(mockToken)).thenReturn(true);
+        when(jwtUtils.getUserIdFromJwtToken(mockToken)).thenReturn(mockUserId);
+        when(gestorObjetosS3.obtenerURLGetDocumentoEnS3(originalKey)).thenReturn(mockDownloadUrl);
+
+        ResponseEntity<S3DownloadUrlDTO> response = s3Controller.getDownloadUrl(encodedKey, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(mockDownloadUrl, response.getBody().getDownloadUrl());
+        assertEquals(originalKey, response.getBody().getKey());
+        
+        verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(originalKey);
+    }
+
+    @Test
+    void getDownloadUrl_ShouldReturnDownloadUrl_WhenKeyHasSpecialCharacters() throws Exception {
+        String originalKey = mockUserId + "/test-file with spaces & special chars (version 1).pdf";
+        String encodedKey = URLEncoder.encode(originalKey, StandardCharsets.UTF_8.toString());
+        
+        when(jwtUtils.validateJwtToken(mockToken)).thenReturn(true);
+        when(jwtUtils.getUserIdFromJwtToken(mockToken)).thenReturn(mockUserId);
+        when(gestorObjetosS3.obtenerURLGetDocumentoEnS3(originalKey)).thenReturn(mockDownloadUrl);
+
+        ResponseEntity<S3DownloadUrlDTO> response = s3Controller.getDownloadUrl(encodedKey, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(originalKey, response.getBody().getKey());
+        
+        verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(originalKey);
     }
 
     @Test
@@ -157,6 +197,21 @@ class S3ControllerTest {
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(gestorObjetosS3, never()).obtenerURLGetDocumentoEnS3(anyString());
+    }
+
+    @Test
+    void getDownloadUrl_ShouldHandleDecodingError_Gracefully() {
+        String invalidKey = "user123/invalid%";
+        
+        when(jwtUtils.validateJwtToken(mockToken)).thenReturn(true);
+        when(jwtUtils.getUserIdFromJwtToken(mockToken)).thenReturn(mockUserId);
+        
+        when(gestorObjetosS3.obtenerURLGetDocumentoEnS3(invalidKey)).thenReturn(mockDownloadUrl);
+
+        ResponseEntity<S3DownloadUrlDTO> response = s3Controller.getDownloadUrl(invalidKey, request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(invalidKey);
     }
     
 }
