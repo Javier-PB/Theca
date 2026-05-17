@@ -147,6 +147,9 @@ public class RecursoController {
 			}).collect(Collectors.toList());
 			recurso.setAutores(autores);
 		}
+		if (dto.getArchivoKey() != null && !dto.getArchivoKey().isEmpty()) {
+		    recurso.setArchivoKey(dto.getArchivoKey());
+		}
 
 		recurso.setFechaCreacion(LocalDateTime.now());
 		recurso.setFechaModificacion(LocalDateTime.now());
@@ -238,6 +241,10 @@ public class RecursoController {
 	                    return etiqueta;
 	                }).collect(Collectors.toList());
 	            recursoExistente.setEtiquetas(etiquetas);
+	        }
+	        
+	        if (recursoActualizado.getArchivoKey() != null) {
+	            recursoExistente.setArchivoKey(recursoActualizado.getArchivoKey());
 	        }
 
 	        recursoExistente.setFechaModificacion(LocalDateTime.now());

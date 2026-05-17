@@ -28,6 +28,7 @@ public class UpdateRecursoDTO {
     private List<String> autoresIds;
     private EstadoSincronizacion estadoSincronizacion;
     private Double version;
+    private String archivoKey;
 
     public UpdateRecursoDTO() {}
 
@@ -110,5 +111,13 @@ public class UpdateRecursoDTO {
     public void setVersion(Double version) {
     	this.version = version;
     }
+
+	public String getArchivoKey() {
+		return archivoKey;
+	}
+
+	public void setArchivoKey(String archivoKey) {
+		this.archivoKey = archivoKey;
+	}
 
 }

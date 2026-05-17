@@ -25,6 +25,7 @@ public class CreateRecursoDTO {
     private List<String> etiquetasIds;
     private List<String> categoriasIds;
     private List<String> autoresIds;
+    private String archivoKey;
     
     public String getTitulo() {
     	return titulo;
@@ -96,5 +97,13 @@ public class CreateRecursoDTO {
     public void setAutoresIds(List<String> autoresIds) {
     	this.autoresIds = autoresIds;
     }
+
+	public String getArchivoKey() {
+		return archivoKey;
+	}
+
+	public void setArchivoKey(String archivoKey) {
+		this.archivoKey = archivoKey;
+	}
 
 }

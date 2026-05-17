@@ -39,13 +39,14 @@ public class Recurso {
 	private List<Etiqueta> etiquetas;
 	private List<Categoria> categorias;
 	private List<Autor> autores;
+	private String archivoKey;
 		    
 	// Constructores de la entidad:
 	public Recurso() {}
 		    
 	public Recurso(String id, String titulo, String descripcion, String enlace, byte[] portada, LocalDateTime fechaCreacion,
 				   LocalDateTime fechaModificacion, EstadoSincronizacion estadoSincronizacion, Double version, Usuario usuario, List<Tipo> tipos,
-				   List<Etiqueta> etiquetas, List<Categoria> categorias, List<Autor> autores) {
+				   List<Etiqueta> etiquetas, List<Categoria> categorias, List<Autor> autores, String archivoKey) {
 		super();
 		this.id = id;
 		this.titulo = titulo;
@@ -61,6 +62,7 @@ public class Recurso {
 		this.etiquetas = etiquetas;
 		this.categorias = categorias;
 		this.autores = autores;
+		this.archivoKey = archivoKey;
 	}
 	
 	public String getId() {
@@ -173,6 +175,14 @@ public class Recurso {
 	
 	public void setAutores(List<Autor> autores) {
 		this.autores = autores;
+	}
+
+	public String getArchivoKey() {
+		return archivoKey;
+	}
+
+	public void setArchivoKey(String archivoKey) {
+		this.archivoKey = archivoKey;
 	}
 	
 }
