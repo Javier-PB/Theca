@@ -17,19 +17,28 @@ import org.springframework.test.util.ReflectionTestUtils;
 class AwsConfigTest {
 
     @Test
-    void testInitDoesNotThrowException() {
+    void testInitDoesNotThrowExceptionWithProfile() {
         AwsConfig awsConfig = new AwsConfig();
-        ReflectionTestUtils.setField(awsConfig, "accessKeyId", "test-key");
-        ReflectionTestUtils.setField(awsConfig, "secretAccessKey", "test-secret");
+        ReflectionTestUtils.setField(awsConfig, "awsProfile", "default");
+        ReflectionTestUtils.setField(awsConfig, "bucketName", "test-bucket");
         
         assertDoesNotThrow(() -> awsConfig.init());
     }
     
     @Test
-    void testInitWithEmptyCredentials() {
+    void testInitWithEmptyProfile() {
         AwsConfig awsConfig = new AwsConfig();
-        ReflectionTestUtils.setField(awsConfig, "accessKeyId", "");
-        ReflectionTestUtils.setField(awsConfig, "secretAccessKey", "");
+        ReflectionTestUtils.setField(awsConfig, "awsProfile", "");
+        ReflectionTestUtils.setField(awsConfig, "bucketName", "test-bucket");
+        
+        assertDoesNotThrow(() -> awsConfig.init());
+    }
+    
+    @Test
+    void testInitWithNullProfile() {
+        AwsConfig awsConfig = new AwsConfig();
+        ReflectionTestUtils.setField(awsConfig, "awsProfile", null);
+        ReflectionTestUtils.setField(awsConfig, "bucketName", "test-bucket");
         
         assertDoesNotThrow(() -> awsConfig.init());
     }

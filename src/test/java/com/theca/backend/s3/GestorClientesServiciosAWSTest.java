@@ -25,6 +25,16 @@ class GestorClientesServiciosAWSTest {
     void testInitCredentials() {
         assertDoesNotThrow(() -> GestorClientesServiciosAWS.initCredentials("key", "secret"));
     }
+    
+    @Test
+    void testInitCredentialsWithSessionToken() {
+        assertDoesNotThrow(() -> GestorClientesServiciosAWS.initCredentials("key", "secret", "session-token"));
+    }
+    
+    @Test
+    void testInitProfile() {
+        assertDoesNotThrow(() -> GestorClientesServiciosAWS.initProfile("default"));
+    }
 
     @Test
     void testGetClientePrefirmadorBucketS3() {
