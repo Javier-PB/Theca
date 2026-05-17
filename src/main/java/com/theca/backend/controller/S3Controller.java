@@ -68,7 +68,7 @@ public class S3Controller {
         return ResponseEntity.ok(new S3UploadUrlDTO(uploadUrl, key));
     }
     
-    @GetMapping("/download-url/{key}")
+    @GetMapping("/download-url")
     @Operation(summary = "Obtener URL prefirmada para descargar un archivo",
                description = "Devuelve una URL firmada para descargar un archivo de S3")
     @ApiResponses({
@@ -79,7 +79,9 @@ public class S3Controller {
         @ApiResponse(responseCode = "404", description = "Archivo no encontrado"),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public ResponseEntity<S3DownloadUrlDTO> getDownloadUrl(@PathVariable String key, HttpServletRequest request) {
+    public ResponseEntity<S3DownloadUrlDTO> getDownloadUrl(
+            @RequestParam String key,
+            HttpServletRequest request) {
         
         String decodedKey = key;
         try {

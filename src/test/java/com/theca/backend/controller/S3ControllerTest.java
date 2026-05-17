@@ -105,7 +105,7 @@ class S3ControllerTest {
 
         assertNotEquals(response1.getBody().getKey(), response2.getBody().getKey());
     }
-
+    
     @Test
     void getDownloadUrl_ShouldReturnDownloadUrl_WhenValidRequestWithUnencodedKey() {
         String key = mockUserId + "/123-test-key.pdf";
@@ -138,9 +138,9 @@ class S3ControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(mockDownloadUrl, response.getBody().getDownloadUrl());
-        assertEquals(originalKey, response.getBody().getKey());
+        assertEquals(originalKey, response.getBody().getKey()); // Debe devolver la key decodificada
         
-        verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(originalKey);
+        verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(originalKey); // Debe llamar con la key original
     }
 
     @Test
@@ -174,6 +174,16 @@ class S3ControllerTest {
     }
 
     @Test
+    void getDownloadUrl_ShouldReturnBadRequest_WhenNoAuthorizationHeader() {
+        when(request.getHeader("Authorization")).thenReturn(null);
+        
+        ResponseEntity<S3DownloadUrlDTO> response = s3Controller.getDownloadUrl("any-key.pdf", request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(gestorObjetosS3, never()).obtenerURLGetDocumentoEnS3(anyString());
+    }
+
+    @Test
     void getDownloadUrl_ShouldReturnForbidden_WhenKeyDoesNotBelongToUser() {
         String key = "otherUser/123-test-key.pdf";
         
@@ -200,8 +210,8 @@ class S3ControllerTest {
     }
 
     @Test
-    void getDownloadUrl_ShouldHandleDecodingError_Gracefully() {
-        String invalidKey = "user123/invalid%";
+    void getDownloadUrl_ShouldHandleDecodingError_Gracefully() throws Exception {
+        String invalidKey = "user123/invalid%"; // El % solo es inválido
         
         when(jwtUtils.validateJwtToken(mockToken)).thenReturn(true);
         when(jwtUtils.getUserIdFromJwtToken(mockToken)).thenReturn(mockUserId);
@@ -212,6 +222,22 @@ class S3ControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(gestorObjetosS3).obtenerURLGetDocumentoEnS3(invalidKey);
+    }
+
+    @Test
+    void getDownloadUrl_ShouldHandleNullKey() {
+        ResponseEntity<S3DownloadUrlDTO> response = s3Controller.getDownloadUrl(null, request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(gestorObjetosS3, never()).obtenerURLGetDocumentoEnS3(anyString());
+    }
+
+    @Test
+    void getDownloadUrl_ShouldHandleEmptyKey() {
+        ResponseEntity<S3DownloadUrlDTO> response = s3Controller.getDownloadUrl("", request);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(gestorObjetosS3, never()).obtenerURLGetDocumentoEnS3(anyString());
     }
     
 }
