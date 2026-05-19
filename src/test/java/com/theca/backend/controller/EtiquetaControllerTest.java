@@ -156,6 +156,39 @@ public class EtiquetaControllerTest {
         assertEquals("Ya existe una etiqueta con el nombre 'Java'", response.getBody());
         verify(etiquetaRepository, never()).save(any(Etiqueta.class));
     }
+    
+    @Test
+    void create_ShouldSaveEtiquetaWithEstadoSincronizado_WhenEstadoProvided() {
+        CreateEtiquetaDTO dto = new CreateEtiquetaDTO();
+        dto.setNombre("Nueva Etiqueta");
+        dto.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);
+        
+        when(etiquetaRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER)).thenReturn(false);
+        when(etiquetaRepository.save(any(Etiqueta.class))).thenAnswer(i -> i.getArgument(0));
+        
+        ResponseEntity<?> response = etiquetaController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Etiqueta saved = (Etiqueta) response.getBody();
+        assertEquals(EstadoSincronizacion.SINCRONIZADO, saved.getEstadoSincronizacion());
+        verify(etiquetaRepository, times(1)).save(any(Etiqueta.class));
+    }
+
+    @Test
+    void create_ShouldSetPendienteCuandoNoSeEnviaEstado() {
+        CreateEtiquetaDTO dto = new CreateEtiquetaDTO();
+        dto.setNombre("Nueva Etiqueta");
+        
+        when(etiquetaRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER)).thenReturn(false);
+        when(etiquetaRepository.save(any(Etiqueta.class))).thenAnswer(i -> i.getArgument(0));
+        
+        ResponseEntity<?> response = etiquetaController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Etiqueta saved = (Etiqueta) response.getBody();
+        assertEquals(EstadoSincronizacion.PENDIENTE, saved.getEstadoSincronizacion());
+        verify(etiquetaRepository, times(1)).save(any(Etiqueta.class));
+    }
 
     @Test
     void update_ShouldUpdateEtiqueta_WhenBelongsToUserAndNombreIsUnique() {

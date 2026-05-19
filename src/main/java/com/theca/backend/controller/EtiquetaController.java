@@ -98,7 +98,12 @@ public class EtiquetaController {
         etiqueta.setNombre(dto.getNombre());
         etiqueta.setUsuarioId(username);
         etiqueta.setFechaModificacion(LocalDateTime.now());
-        etiqueta.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        
+        if (dto.getEstadoSincronizacion() != null) {
+            etiqueta.setEstadoSincronizacion(dto.getEstadoSincronizacion());
+        } else {
+            etiqueta.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        }
         
         return ResponseEntity.status(HttpStatus.CREATED).body(etiquetaRepository.save(etiqueta));
     }

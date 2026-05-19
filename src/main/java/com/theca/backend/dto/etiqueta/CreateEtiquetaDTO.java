@@ -7,12 +7,15 @@
  */
 package com.theca.backend.dto.etiqueta;
 
+import com.theca.backend.enums.EstadoSincronizacion;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CreateEtiquetaDTO {
 
 	@NotBlank(message = "El nombre de la etiqueta es obligatorio")
     private String nombre;
+	private EstadoSincronizacion estadoSincronizacion;
 	private String usuarioId;
 
     public CreateEtiquetaDTO() {}
@@ -24,6 +27,14 @@ public class CreateEtiquetaDTO {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+	public EstadoSincronizacion getEstadoSincronizacion() {
+		return estadoSincronizacion;
+	}
+
+	public void setEstadoSincronizacion(EstadoSincronizacion estadoSincronizacion) {
+		this.estadoSincronizacion = estadoSincronizacion;
+	}
 
 	public String getUsuarioId() {
 		return usuarioId;

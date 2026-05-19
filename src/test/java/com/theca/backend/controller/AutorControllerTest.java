@@ -181,6 +181,47 @@ public class AutorControllerTest {
         assertEquals("Ya existe un autor con el nombre 'Gabriel García Márquez'", response.getBody());
         verify(autorRepository, never()).save(any(Autor.class));
     }
+    
+    @Test
+    void create_ShouldSaveAutorWithEstadoSincronizado_WhenEstadoProvided() {
+        CreateAutorDTO dto = new CreateAutorDTO();
+        dto.setNombre("Isabel Allende");
+        dto.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);
+        
+        when(autorRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER)).thenReturn(false);
+        when(autorRepository.save(any(Autor.class))).thenAnswer(i -> {
+            Autor a = i.getArgument(0);
+            a.setId("3");
+            return a;
+        });
+        
+        ResponseEntity<?> response = autorController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Autor saved = (Autor) response.getBody();
+        assertEquals(EstadoSincronizacion.SINCRONIZADO, saved.getEstadoSincronizacion());
+        verify(autorRepository, times(1)).save(any(Autor.class));
+    }
+
+    @Test
+    void create_ShouldSetPendienteCuandoNoSeEnviaEstado() {
+        CreateAutorDTO dto = new CreateAutorDTO();
+        dto.setNombre("Isabel Allende");
+        
+        when(autorRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER)).thenReturn(false);
+        when(autorRepository.save(any(Autor.class))).thenAnswer(i -> {
+            Autor a = i.getArgument(0);
+            a.setId("3");
+            return a;
+        });
+        
+        ResponseEntity<?> response = autorController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Autor saved = (Autor) response.getBody();
+        assertEquals(EstadoSincronizacion.PENDIENTE, saved.getEstadoSincronizacion());
+        verify(autorRepository, times(1)).save(any(Autor.class));
+    }
 
     @Test
     void update_ShouldUpdateAutor_WhenBelongsToUserAndNombreIsUnique() {

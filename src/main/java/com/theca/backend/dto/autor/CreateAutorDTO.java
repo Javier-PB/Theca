@@ -8,9 +8,12 @@
  */
 package com.theca.backend.dto.autor;
 
+import com.theca.backend.enums.EstadoSincronizacion;
+
 public class CreateAutorDTO {
 
     private String nombre;
+    private EstadoSincronizacion estadoSincronizacion;
     private String usuarioId;
 
     public CreateAutorDTO() {}
@@ -22,6 +25,14 @@ public class CreateAutorDTO {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+	public EstadoSincronizacion getEstadoSincronizacion() {
+		return estadoSincronizacion;
+	}
+
+	public void setEstadoSincronizacion(EstadoSincronizacion estadoSincronizacion) {
+		this.estadoSincronizacion = estadoSincronizacion;
+	}
 
 	public String getUsuarioId() {
 		return usuarioId;

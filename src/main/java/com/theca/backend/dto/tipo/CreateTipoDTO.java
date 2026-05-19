@@ -8,6 +8,8 @@
  */
 package com.theca.backend.dto.tipo;
 
+import com.theca.backend.enums.EstadoSincronizacion;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CreateTipoDTO {
@@ -15,6 +17,7 @@ public class CreateTipoDTO {
 	@NotBlank(message = "El nombre del tipo de recurso es obligatorio")
     private String nombre;
 	private byte[] imagen;
+	private EstadoSincronizacion estadoSincronizacion;
     private String usuarioId;
 
     public CreateTipoDTO() {}
@@ -33,6 +36,14 @@ public class CreateTipoDTO {
 
 	public void setImagen(byte[] imagen) {
 		this.imagen = imagen;
+	}
+
+	public EstadoSincronizacion getEstadoSincronizacion() {
+		return estadoSincronizacion;
+	}
+
+	public void setEstadoSincronizacion(EstadoSincronizacion estadoSincronizacion) {
+		this.estadoSincronizacion = estadoSincronizacion;
 	}
 
 	public String getUsuarioId() {

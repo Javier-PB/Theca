@@ -149,7 +149,12 @@ public class AutorController {
         autor.setNombre(dto.getNombre());
         autor.setUsuarioId(userId);
         autor.setFechaModificacion(LocalDateTime.now());
-        autor.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        
+        if (dto.getEstadoSincronizacion() != null) {
+            autor.setEstadoSincronizacion(dto.getEstadoSincronizacion());
+        } else {
+            autor.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        }
         
         return ResponseEntity.status(HttpStatus.CREATED).body(autorRepository.save(autor));
     }

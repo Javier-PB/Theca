@@ -8,6 +8,8 @@
  */
 package com.theca.backend.dto.categoria;
 
+import com.theca.backend.enums.EstadoSincronizacion;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CreateCategoriaDTO {
@@ -15,6 +17,7 @@ public class CreateCategoriaDTO {
 	@NotBlank(message = "El nombre de la categoría es obligatorio")
     private String nombre;
     private String categoriaPadreId;
+    private EstadoSincronizacion estadoSincronizacion;
     private String usuarioId;
 
     public CreateCategoriaDTO() {}
@@ -35,7 +38,15 @@ public class CreateCategoriaDTO {
         this.categoriaPadreId = categoriaPadreId;
     }
     
-    public String getUsuarioId() {
+    public EstadoSincronizacion getEstadoSincronizacion() {
+		return estadoSincronizacion;
+	}
+
+	public void setEstadoSincronizacion(EstadoSincronizacion estadoSincronizacion) {
+		this.estadoSincronizacion = estadoSincronizacion;
+	}
+
+	public String getUsuarioId() {
     	return usuarioId;
     }
     

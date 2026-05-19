@@ -153,6 +153,39 @@ public class TipoControllerTest {
         assertEquals("Ya existe un tipo con el nombre 'Libro'", response.getBody());
         verify(tipoRepository, never()).save(any(Tipo.class));
     }
+    
+    @Test
+    void create_ShouldSaveTipoWithEstadoSincronizado_WhenEstadoProvided() {
+        CreateTipoDTO dto = new CreateTipoDTO();
+        dto.setNombre("Nuevo Tipo");
+        dto.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);
+        
+        when(tipoRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER_ID)).thenReturn(false);
+        when(tipoRepository.save(any(Tipo.class))).thenAnswer(i -> i.getArgument(0));
+        
+        ResponseEntity<?> response = tipoController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Tipo saved = (Tipo) response.getBody();
+        assertEquals(EstadoSincronizacion.SINCRONIZADO, saved.getEstadoSincronizacion());
+        verify(tipoRepository, times(1)).save(any(Tipo.class));
+    }
+
+    @Test
+    void create_ShouldSetPendienteCuandoNoSeEnviaEstado() {
+        CreateTipoDTO dto = new CreateTipoDTO();
+        dto.setNombre("Nuevo Tipo");
+        
+        when(tipoRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER_ID)).thenReturn(false);
+        when(tipoRepository.save(any(Tipo.class))).thenAnswer(i -> i.getArgument(0));
+        
+        ResponseEntity<?> response = tipoController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Tipo saved = (Tipo) response.getBody();
+        assertEquals(EstadoSincronizacion.PENDIENTE, saved.getEstadoSincronizacion());
+        verify(tipoRepository, times(1)).save(any(Tipo.class));
+    }
 
     @Test
     void update_ShouldUpdateTipo_WhenBelongsToUserAndNombreIsUnique() {

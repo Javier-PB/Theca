@@ -99,7 +99,12 @@ public class CategoriaController {
         categoria.setCategoriaPadreId(dto.getCategoriaPadreId());
         categoria.setUsuarioId(username);
         categoria.setFechaModificacion(LocalDateTime.now());
-        categoria.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        
+        if (dto.getEstadoSincronizacion() != null) {
+            categoria.setEstadoSincronizacion(dto.getEstadoSincronizacion());
+        } else {
+            categoria.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        }
         
         return ResponseEntity.status(HttpStatus.CREATED).body(categoriaRepository.save(categoria));
     }

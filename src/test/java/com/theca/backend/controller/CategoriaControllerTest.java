@@ -179,6 +179,39 @@ public class CategoriaControllerTest {
         assertEquals("Ya existe una categoría con el nombre 'C1'", response.getBody());
         verify(categoriaRepository, never()).save(any(Categoria.class));
     }
+    
+    @Test
+    void create_ShouldSaveCategoriaWithEstadoSincronizado_WhenEstadoProvided() {
+        CreateCategoriaDTO dto = new CreateCategoriaDTO();
+        dto.setNombre("Nueva Categoria");
+        dto.setCategoriaPadreId(null);
+        dto.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);
+        
+        when(categoriaRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER)).thenReturn(false);
+        when(categoriaRepository.save(any(Categoria.class))).thenAnswer(i -> i.getArgument(0));
+        
+        ResponseEntity<?> response = categoriaController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Categoria saved = (Categoria) response.getBody();
+        assertEquals(EstadoSincronizacion.SINCRONIZADO, saved.getEstadoSincronizacion());
+    }
+
+    @Test
+    void create_ShouldSetPendienteCuandoNoSeEnviaEstado() {
+        CreateCategoriaDTO dto = new CreateCategoriaDTO();
+        dto.setNombre("Nueva Categoria");
+        dto.setCategoriaPadreId(null);
+        
+        when(categoriaRepository.existsByNombreAndUsuarioId(dto.getNombre(), TEST_USER)).thenReturn(false);
+        when(categoriaRepository.save(any(Categoria.class))).thenAnswer(i -> i.getArgument(0));
+        
+        ResponseEntity<?> response = categoriaController.create(dto);
+        
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Categoria saved = (Categoria) response.getBody();
+        assertEquals(EstadoSincronizacion.PENDIENTE, saved.getEstadoSincronizacion());
+    }
 
     @Test
     void update_ShouldUpdateCategoria_WhenBelongsToUserAndNombreIsUnique() {

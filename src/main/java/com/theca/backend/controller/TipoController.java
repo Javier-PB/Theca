@@ -121,8 +121,13 @@ public class TipoController {
         tipo.setImagen(dto.getImagen());
         tipo.setUsuarioId(userId);
         tipo.setFechaModificacion(LocalDateTime.now());
-        tipo.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
         tipo.setEsPredeterminado(false);
+        
+        if (dto.getEstadoSincronizacion() != null) {
+            tipo.setEstadoSincronizacion(dto.getEstadoSincronizacion());
+        } else {
+            tipo.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        }
         
         return ResponseEntity.status(HttpStatus.CREATED).body(tipoRepository.save(tipo));
     }
