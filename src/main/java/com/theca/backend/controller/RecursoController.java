@@ -118,6 +118,11 @@ public class RecursoController {
 		recurso.setDescripcion(dto.getDescripcion());
 		recurso.setEnlace(dto.getEnlace());
 		recurso.setPortada(dto.getPortada());
+	    if (dto.getEstadoSincronizacion() != null) {
+	        recurso.setEstadoSincronizacion(dto.getEstadoSincronizacion());
+	    } else {
+	        recurso.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+	    }
 		if (dto.getUsuarioId() != null) {
 			Usuario usuario = new Usuario();
 			usuario.setId(dto.getUsuarioId());
@@ -153,7 +158,6 @@ public class RecursoController {
 
 		recurso.setFechaCreacion(LocalDateTime.now());
 		recurso.setFechaModificacion(LocalDateTime.now());
-		recurso.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
 		return recursoRepository.save(recurso);
 	}
 	

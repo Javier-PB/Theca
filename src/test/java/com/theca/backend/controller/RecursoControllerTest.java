@@ -4,7 +4,6 @@
  * @author Javier Pérez Báez
  * @version 1.0
  * @date 18 abr 2026
- * 
  */
 
 package com.theca.backend.controller;
@@ -62,7 +61,6 @@ public class RecursoControllerTest {
     private Recurso recurso1;
     private Recurso recurso2;
     
-    // Datos de prueba para relaciones:
     private Tipo tipo1;
     private Tipo tipo2;
     private Autor autor1;
@@ -72,7 +70,6 @@ public class RecursoControllerTest {
     private Etiqueta etiqueta1;
     private Etiqueta etiqueta2;
     
-    // Antes de cada test, se inicializan los recursos y relaciones:
     @BeforeEach
     void setUp() {
         byte[] portadaPrueba = new byte[1024];
@@ -82,8 +79,6 @@ public class RecursoControllerTest {
         usuarioPrueba.setNombre("Usuario Prueba");
         usuarioPrueba.setCorreo("test@email.com");
         
-
-        // Inicializar relaciones de prueba:
         tipo1 = new Tipo();
         tipo1.setId("tipo1");
         tipo1.setNombre("PDF");
@@ -125,7 +120,7 @@ public class RecursoControllerTest {
         recurso1.setPortada(portadaPrueba);
         recurso1.setFechaCreacion(LocalDateTime.now());
         recurso1.setFechaModificacion(LocalDateTime.now());
-        recurso1.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        recurso1.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);
         recurso1.setVersion(1.0);
         recurso1.setUsuario(usuarioPrueba);
         recurso1.setTipos(Arrays.asList(tipo1));
@@ -143,7 +138,7 @@ public class RecursoControllerTest {
         recurso2.setPortada(portadaPrueba);
         recurso2.setFechaCreacion(LocalDateTime.now());
         recurso2.setFechaModificacion(LocalDateTime.now());
-        recurso2.setEstadoSincronizacion(EstadoSincronizacion.PENDIENTE);
+        recurso2.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);
         recurso2.setVersion(1.0);
         recurso2.setUsuario(usuarioPrueba);
         recurso2.setTipos(Arrays.asList(tipo2));
@@ -216,7 +211,7 @@ public class RecursoControllerTest {
     }
 
     @Test
-    void create_ShouldSaveAndReturnRecurso() {
+    void create_ShouldSaveAndReturnRecursoConEstadoSincronizado() {
         CreateRecursoDTO inputRecurso = new CreateRecursoDTO();
         inputRecurso.setTitulo("Nuevo libro");
         inputRecurso.setDescripcion("Nueva descripción");
@@ -225,6 +220,7 @@ public class RecursoControllerTest {
         inputRecurso.setCategoriasIds(Arrays.asList("cat1"));
         inputRecurso.setEtiquetasIds(Arrays.asList("etq1"));
         inputRecurso.setArchivoKey("user1/123456-test.pdf");
+        inputRecurso.setEstadoSincronizacion(EstadoSincronizacion.SINCRONIZADO);  // NUEVO
 
         when(recursoRepository.save(any(Recurso.class))).thenAnswer(invocation -> {
             Recurso recursoGuardado = invocation.getArgument(0);
@@ -240,6 +236,24 @@ public class RecursoControllerTest {
         assertEquals("Nueva descripción", result.getDescripcion());
         assertNotNull(result.getFechaCreacion());
         assertNotNull(result.getFechaModificacion());
+        assertEquals(EstadoSincronizacion.SINCRONIZADO, result.getEstadoSincronizacion());  // CAMBIADO
+        verify(recursoRepository, times(1)).save(any(Recurso.class));
+    }
+    
+    @Test
+    void create_ShouldSetPendienteCuandoNoSeEnviaEstado() {
+        CreateRecursoDTO inputRecurso = new CreateRecursoDTO();
+        inputRecurso.setTitulo("Nuevo libro sin estado");
+
+        when(recursoRepository.save(any(Recurso.class))).thenAnswer(invocation -> {
+            Recurso recursoGuardado = invocation.getArgument(0);
+            recursoGuardado.setId("3");
+            return recursoGuardado;
+        });
+
+        Recurso result = recursoController.create(inputRecurso);
+
+        assertNotNull(result);
         assertEquals(EstadoSincronizacion.PENDIENTE, result.getEstadoSincronizacion());
         verify(recursoRepository, times(1)).save(any(Recurso.class));
     }

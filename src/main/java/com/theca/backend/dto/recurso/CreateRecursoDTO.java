@@ -10,6 +10,8 @@ package com.theca.backend.dto.recurso;
 
 import java.util.List;
 
+import com.theca.backend.enums.EstadoSincronizacion;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CreateRecursoDTO {
@@ -20,6 +22,7 @@ public class CreateRecursoDTO {
     private String descripcion;
     private String enlace;
     private byte[] portada;
+    private EstadoSincronizacion estadoSincronizacion;
     private String usuarioId;
     private List<String> tiposIds;
     private List<String> etiquetasIds;
@@ -54,11 +57,20 @@ public class CreateRecursoDTO {
     public byte[] getPortada() {
     	return portada;
     }
+    
     public void setPortada(byte[] portada) {
     	this.portada = portada;
     }
     
-    public String getUsuarioId() {
+    public EstadoSincronizacion getEstadoSincronizacion() {
+		return estadoSincronizacion;
+	}
+
+	public void setEstadoSincronizacion(EstadoSincronizacion estadoSincronizacion) {
+		this.estadoSincronizacion = estadoSincronizacion;
+	}
+
+	public String getUsuarioId() {
     	return usuarioId;
     }
     
