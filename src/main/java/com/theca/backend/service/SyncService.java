@@ -41,8 +41,22 @@ public class SyncService {
 
     // Método que recibe cambios del cliente y los guarda en la cola:
     public void pushChanges(SyncPushRequestDTO request) {
+        System.out.println("=== PUSH CHANGES RECEIVED ===");
+        System.out.println("Número de cambios: " + request.getCambios().size());
+        
         for (CambioDTO cambio : request.getCambios()) {
+            System.out.println("--- Procesando cambio ---");
+            System.out.println("  entidad: " + cambio.getEntidad());
+            System.out.println("  operacion: " + cambio.getOperacion());
+            System.out.println("  archivoBase64 null? " + (cambio.getArchivoBase64() == null));
+            if (cambio.getArchivoBase64() != null) {
+                System.out.println("  archivoBase64 length: " + cambio.getArchivoBase64().length());
+                System.out.println("  archivoNombre: " + cambio.getArchivoNombre());
+                System.out.println("  archivoContentType: " + cambio.getArchivoContentType());
+            }
+            
             String archivoKey = procesarArchivoOffline(cambio);
+            System.out.println("  archivoKey obtenido: " + archivoKey);
             
             String datosJsonFinal = limpiarYActualizarJson(cambio.getDatosJson(), archivoKey);
             
@@ -60,30 +74,49 @@ public class SyncService {
     
     // Método para procesar un archivo offline y subirlo a S3:
     private String procesarArchivoOffline(CambioDTO cambio) {
-        if (!"RECURSO".equals(cambio.getEntidad()) || 
-            !"CREATE".equals(cambio.getOperacion()) ||
-            cambio.getArchivoBase64() == null ||
-            cambio.getArchivoBase64().isEmpty()) {
+        System.out.println(">>> ENTRANDO A procesarArchivoOffline <<<");
+        
+        if (!"RECURSO".equals(cambio.getEntidad())) {
+            System.out.println("  No es RECURSO, es: " + cambio.getEntidad());
+            return null;
+        }
+        if (!"CREATE".equals(cambio.getOperacion())) {
+            System.out.println("  No es CREATE, es: " + cambio.getOperacion());
+            return null;
+        }
+        if (cambio.getArchivoBase64() == null) {
+            System.out.println("  archivoBase64 es NULL");
+            return null;
+        }
+        if (cambio.getArchivoBase64().isEmpty()) {
+            System.out.println("  archivoBase64 está VACÍO");
             return null;
         }
         
+        System.out.println("  ✅ Pasa todas las validaciones");
+        System.out.println("  archivoBase64 length: " + cambio.getArchivoBase64().length());
+        
         try {
-            
             byte[] archivoBytes = Base64.getDecoder().decode(cambio.getArchivoBase64());
+            System.out.println("  Bytes decodificados: " + archivoBytes.length);
             
             String key = "offline-demo/" + System.currentTimeMillis() + "-" + 
                          (cambio.getArchivoNombre() != null ? cambio.getArchivoNombre() : "archivo.bin");
+            System.out.println("  Key generada: " + key);
             
             String contentType = cambio.getArchivoContentType();
             if (contentType == null || contentType.isEmpty()) {
                 contentType = "application/octet-stream";
             }
+            System.out.println("  ContentType: " + contentType);
             
             gestorObjetosS3.subirArchivoDesdeBytes(key, archivoBytes, contentType);
             
+            System.out.println("  ✅ Archivo subido exitosamente a S3");
             return key;
             
         } catch (Exception e) {
+            System.err.println("  ❌ ERROR en procesarArchivoOffline: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
