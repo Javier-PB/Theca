@@ -1,3 +1,11 @@
+/**
+ * Descripción: Servicio para gestionar la sincronización offline/online.
+ * 
+ * @author Javier Pérez Báez
+ * @version 1.0
+ * @date 1 may 2026
+ */
+
 package com.theca.backend.service;
 
 import java.time.LocalDateTime;
@@ -29,13 +37,11 @@ public class SyncService {
     @Autowired
     private GestorObjetosS3 gestorObjetosS3;
     
-    
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Método que recibe cambios del cliente y los guarda en la cola:
     public void pushChanges(SyncPushRequestDTO request) {
         for (CambioDTO cambio : request.getCambios()) {
-            
             String archivoKey = procesarArchivoOffline(cambio);
             
             String datosJsonFinal = limpiarYActualizarJson(cambio.getDatosJson(), archivoKey);
@@ -62,6 +68,7 @@ public class SyncService {
         }
         
         try {
+            
             byte[] archivoBytes = Base64.getDecoder().decode(cambio.getArchivoBase64());
             
             String key = "offline-demo/" + System.currentTimeMillis() + "-" + 
@@ -74,16 +81,15 @@ public class SyncService {
             
             gestorObjetosS3.subirArchivoDesdeBytes(key, archivoBytes, contentType);
             
-            System.out.println("✅ Archivo offline subido a S3: " + key);
             return key;
             
         } catch (Exception e) {
-            System.err.println("❌ Error al procesar archivo offline: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
     
-    // Método para limpiar campos temporales del JSON y añadir archivoKey:
+    // Método para limpiar campos temporales del JSON y añadir el archivoKey:
     private String limpiarYActualizarJson(String datosJson, String archivoKey) {
         if (datosJson == null || datosJson.isEmpty()) {
             return datosJson;
@@ -105,9 +111,7 @@ public class SyncService {
                 
                 return objectMapper.writeValueAsString(objectNode);
             }
-        } catch (Exception e) {
-            System.err.println("Error al limpiar JSON: " + e.getMessage());
-        }
+        } catch (Exception e) {}
         
         return datosJson;
     }
