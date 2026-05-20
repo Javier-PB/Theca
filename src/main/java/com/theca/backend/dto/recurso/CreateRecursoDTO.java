@@ -29,6 +29,9 @@ public class CreateRecursoDTO {
     private List<String> categoriasIds;
     private List<String> autoresIds;
     private String archivoKey;
+    private String archivoBase64;
+    private String archivoNombre;
+    private String archivoContentType;
     
     public String getTitulo() {
     	return titulo;
@@ -116,6 +119,30 @@ public class CreateRecursoDTO {
 
 	public void setArchivoKey(String archivoKey) {
 		this.archivoKey = archivoKey;
+	}
+
+	public String getArchivoBase64() {
+		return archivoBase64;
+	}
+
+	public void setArchivoBase64(String archivoBase64) {
+		this.archivoBase64 = archivoBase64;
+	}
+
+	public String getArchivoNombre() {
+		return archivoNombre;
+	}
+
+	public void setArchivoNombre(String archivoNombre) {
+		this.archivoNombre = archivoNombre;
+	}
+
+	public String getArchivoContentType() {
+		return archivoContentType;
+	}
+
+	public void setArchivoContentType(String archivoContentType) {
+		this.archivoContentType = archivoContentType;
 	}
 
 }

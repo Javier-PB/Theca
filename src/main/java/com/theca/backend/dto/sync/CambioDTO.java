@@ -14,6 +14,9 @@ public class CambioDTO {
     private String idEntidad;
     private String operacion;
     private String datosJson;
+    private String archivoBase64;
+    private String archivoNombre;
+    private String archivoContentType;
     
     public String getEntidad() {
     	return entidad;
@@ -47,4 +50,28 @@ public class CambioDTO {
     	this.datosJson = datosJson;
     }
 
+	public String getArchivoBase64() {
+		return archivoBase64;
+	}
+
+	public void setArchivoBase64(String archivoBase64) {
+		this.archivoBase64 = archivoBase64;
+	}
+
+	public String getArchivoNombre() {
+		return archivoNombre;
+	}
+
+	public void setArchivoNombre(String archivoNombre) {
+		this.archivoNombre = archivoNombre;
+	}
+
+	public String getArchivoContentType() {
+		return archivoContentType;
+	}
+
+	public void setArchivoContentType(String archivoContentType) {
+		this.archivoContentType = archivoContentType;
+	}
+    
 }

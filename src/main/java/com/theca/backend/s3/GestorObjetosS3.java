@@ -15,6 +15,8 @@ import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -66,6 +68,29 @@ public class GestorObjetosS3 {
         presigner.close();
         
         return presignedUrl.toString();
+    }
+    
+    public String subirArchivoDesdeBytes(String clave, byte[] contenido, String contentType) {
+        S3Client s3Client = S3Client.builder()
+                .region(GestorClientesServiciosAWS.REGION_AWS)
+                .credentialsProvider(software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider.create())
+                .build();
+        
+        try {
+            s3Client.putObject(
+                PutObjectRequest.builder()
+                    .bucket(nombreBucket)
+                    .key(clave)
+                    .contentType(contentType)
+                    .build(),
+                RequestBody.fromBytes(contenido)
+            );
+            return clave;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al subir archivo a S3: " + e.getMessage(), e);
+        } finally {
+            s3Client.close();
+        }
     }
     
 }
